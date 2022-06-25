@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Тренировка Vue</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="index.css" />
+</head>
+
+<body>
+    <div class="container main" id="app">
+        <div class="img-background">
+
+            <!-- начальное меню игры -->
+
+            <div class="main-instruction" v-if="show===false">
+                <div class="board-instruction">
+                    <div class="instruction-text">
+                        <h3 class="titul-instruction">Основные правила</h3>
+                        <ul class="text-instruction-list">
+                            <li>Ознакомиться с правилами и начать игру</li>
+                            <li>Разыграть 4 карты. Есть очередность хода.</li>
+                            <li>Карты бьют только напротив</li>
+                            <li>Карта убивает другую, если у той заканчиваются жизни, остаточный урон отнимает жизни игрока</li>
+                            <li>Проигрывает тот у кого первого закончатся жизни</li>
+                            <li>Нажав на карту слева можно увидеть ее описание</li>
+                            <li>Чтобы походить надо нажать на нужную карту, а потом на свободный слот на поле</li>
+                            <li>После выставления карт не забыть нажать закончить ход</li>
+                            <li><strong>Не забыть ввести свое имя ниже, но если забудешь не страшно</strong></li>
+
+                        </ul>
+                        <p class="text-instruction-p"><strong>И помни это только промо, поэтому вряд ли будет победитель))</strong></p>
+                    </div>
+                </div>
+
+                <div class="center input-name">
+
+                    <input class="input-name-text" type="text" v-model="name" placeholder="Введите свой никнейм..."></input>
+                </div>
+
+                <div class="center btn-game-align">
+                    <button class="btn-style btn-game" @click="getForms()" data-bs-toggle="modal" data-bs-target="#exampleModal" type="text"> Начать игру</a>
+                </div>
+            </div>
+
+
+
+    <!-- Игра -->
+
+    <div v-else class="container-play" style="height: 100%;">
+
+        <div class="row play-game">
+            <div class="col-3" style="padding-left:0px">
+                <div class="info-menu-players">
+                    <div class="row card-center" style="height: 100%; margin:0px">
+                        <div class="info-computer">
+                            <p class="name-players-text">Компьютер</p>
+                                <div class="health-players card-center"> <label class="health-players-text">{{computer.life}}</label>  <img class="heart-icon" src="public/heart.png"></div>
+
+                        </div>
+
+
+
+                        <div class="info-card">
+                            <div class="row card-center" style="height: 100%; margin:0px" v-if="obsCard !== undefined">
+                                <div class="info-card-image card-center" style="width: 100%; height: 50%; padding: 0px;"> <!--  картинка для показа карты -->             
+                                    <div class="card-player">
+                                        <div class="row card-center" style="margin:0px; height:100%;">
+                                           <div class="top-card">
+                                               <div class="top-attack-card card-center" style="float:left;">
+                                                   <img class="attack-small-icon" src="public/attack_small.png" alt="">
+                                                   <label style="font-size: 12px;">{{obsCard.attack}}</label>
+                                               </div>
+                                               <div class="top-heart-card card-center" style="float:right;">
+                                                   <label style="font-size: 12px;">{{obsCard.heart}}</label>
+                                                   <img class="heart-small-icon" src="public/heart_small.png">
+                                               </div>
+                                           </div>
+               
+                                           <div class="middle-card card-center" style="padding: 0;">
+                                               <img class="img-card-main" :src="obsCard.image" style="height: 105px; width: 86px;">
+                                           </div>
+                                           <div class="bottom-card">
+                                               <div class="bottom-star-card card-center" style="float:left;">
+                                                   <img class="star-small-icon" src="public/star_small.png" alt="">
+                                                   <label style="font-size: 12px;">{{obsCard.price}}</label>
+                                               </div>
+                                           </div>
+                                       </div>
+                                   </div>
+                                </div>
+
+                                 <div class="info-card-text" style="width: 100%; height: 50%;  padding: 0px;"> <!-- текст показа карты -->
+                                    <p class="text-description">
+                                        {{obsCard.description}}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="info-player">
+                            <p class="name-players-text">{{name}}</p>
+                            <div class="health-players card-center"> <label class="health-players-text">{{player.life}}</label>  <img class="heart-icon" src="public/heart.png"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-7">
+                <div class="row card-center" style="margin-top:15px;"> <!--  карты компютера рубашки -->
+                    <div :class="computer.cardHand[index] !== undefined ? 'card-computer': 'card-game'" v-for="(card, index) in computer.cardHand">
+                        <img src="public/card_computer.jpg" v-if="computer.cardHand[index] !== undefined">
+                    </div>
+
+                </div>
+
+                <div class="row card-center" style="margin-top:30px; margin-bottom:20px;"><!--  карты поля битвы компьютера -->
+                    <div :class="computer.cardBattle[index] !== undefined ? 'card-player': 'card-game'"  v-for="(card, index) in computer.cardBattle">
+                        <div class="row card-center" style="margin:0px; height:100%;"  v-if="computer.cardBattle[index] !== undefined" @click="descriptionCard(index, 'BattleComp')">
+                            <div class="top-card">
+                                <div class="top-attack-card card-center" style="float:left;">
+                                    <img class="attack-small-icon" src="public/attack_small.png" alt="">
+                                    <label style="font-size: 12px;">{{computer.cardBattle[index].attack}}</label>
+                                </div>
+                                <div class="top-heart-card card-center" style="float:right;">
+                                    <label style="font-size: 12px;">{{computer.cardBattle[index].heart}}</label>
+                                    <img class="heart-small-icon" src="public/heart_small.png">
+                                </div>
+                            </div>
+                            <div class="middle-card card-center" style="padding: 0;">
+                                <img class="img-card-main" :src="computer.cardBattle[index].image" style="height: 105px; width: 86px;">
+                            </div>
+                            <div class="bottom-card">
+                                <div class="bottom-star-card card-center" style="float:left;">
+                                    <img class="star-small-icon" src="public/star_small.png" alt="">
+                                    <label style="font-size: 12px;">{{computer.cardBattle[index].price}}</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <hr class="line-battle" style="height: 5px;">
+
+                <div class="row card-center" style="margin-top:15px;"> <!-- карты поля битвы игрока -->
+                    <div :class="player.cardBattle[index] !== undefined ? 'card-player': 'card-game'" v-for="(card, index) in player.cardBattle"  @click="battle(index)">
+                        <div class="row card-center" style="margin:0px; height:100%;" v-if="player.cardBattle[index] !== undefined" @click="descriptionCard(index, 'Battle')">
+                            <div class="top-card">
+                                <div class="top-attack-card card-center" style="float:left;">
+                                    <img class="attack-small-icon" src="public/attack_small.png" alt="">
+                                    <label style="font-size: 12px;">{{player.cardBattle[index].attack}}</label>
+                                </div>
+                                <div class="top-heart-card card-center" style="float:right;">
+                                    <label style="font-size: 12px;">{{player.cardBattle[index].heart}}</label>
+                                    <img class="heart-small-icon" src="public/heart_small.png">
+                                </div>
+                            </div>
+
+                            <div class="middle-card card-center" style="padding: 0;">
+                                <img class="img-card-main" :src="player.cardBattle[index].image" style="height: 105px; width: 86px;">
+                            </div>
+                            <div class="bottom-card">
+                                <div class="bottom-star-card card-center" style="float:left;">
+                                    <img class="star-small-icon" src="public/star_small.png" alt="">
+                                    <label style="font-size: 12px;">{{player.cardBattle[index].price}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row card-center" style="margin-top:30px;" > <!-- карта игрока -->
+                    <div :class="player.cardHand[index] !== undefined ? 'card-player': 'card-game'" v-for="(card, index) in player.cardHand" @click="descriptionCard(index, 'Hand')" >
+                         <div class="row card-center" style="margin:0px; height:100%;" v-if="player.cardHand[index] !== undefined">
+                            <div class="top-card">
+                                <div class="top-attack-card card-center" style="float:left;">
+                                    <img class="attack-small-icon" src="public/attack_small.png" alt="">
+                                    <label style="font-size: 12px;">{{player.cardHand[index].attack}}</label>
+                                </div>
+                                <div class="top-heart-card card-center" style="float:right;">
+                                    <label style="font-size: 12px;">{{player.cardHand[index].heart}}</label>
+                                    <img class="heart-small-icon" src="public/heart_small.png">
+                                </div>
+                            </div>
+
+                            <div class="middle-card card-center" style="padding: 0;">
+                                <img class="img-card-main" :src="player.cardHand[index].image" style="height: 105px; width: 86px;">
+                            </div>
+                            <div class="bottom-card">
+                                <div class="bottom-star-card card-center" style="float:left;">
+                                    <img class="star-small-icon" src="public/star_small.png" alt="">
+                                    <label style="font-size: 12px;">{{player.cardHand[index].price}}</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-2">
+                <div class="end-turn card-center "  v-if="turn === false">
+                    <button class="btn-style button-end-turn" @click="endTurn">Закончить ход</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Модальное окно -->
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Кто же ходит? {{turnFirst}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
